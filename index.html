@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="selectedImageContainer">
+        <button id="expandButton">Expand</button>
+    </div>
+    <div id="galleryContainer">
+        <input type="file" id="folderInput" webkitdirectory directory multiple>
+        <select id="sortOptions">
+            <option value="date">Last Date Modified</option>
+            <option value="name">Name</option>
+        </select>
+        <button id="reverseSortButton">Reverse Sort</button>
+        <div id="gallery"></div>
+    </div>
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elem = document.querySelector('#gallery');
+            var msnry = new Masonry(elem, {
+                itemSelector: '.grid-item',
+                columnWidth: '.grid-sizer',
+                percentPosition: true
+            });
+        });
+    </script>
+</body>
+</html>
