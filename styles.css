@@ -87,6 +87,34 @@ body {
     background-color: #5a5a5c;
 }
 
+#infoButton {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #343436;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}   
+
+#infoButton:hover::after {
+    content: attr(data-info);
+    position: absolute;
+    top: 30px;
+    left: 10px;
+    background-color: #464647;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
 #galleryContainer {
     width: 75%;
     overflow-y: auto;

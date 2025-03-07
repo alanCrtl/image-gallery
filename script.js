@@ -7,7 +7,7 @@ const columnWidth = 250;
 let currentFiles = [];
 let isReversed = false;
 let currentIndex = 0;
-
+let offsetForScrollUpdate = 710
 function handleSortChange() {
     currentIndex = 0;
     sortAndDisplayImages(currentFiles);
@@ -21,7 +21,7 @@ function handleReverseSort() {
 
 function handleScroll() {
     const galleryContainer = document.getElementById('galleryContainer');
-    if (galleryContainer.scrollTop + galleryContainer.clientHeight >= galleryContainer.scrollHeight - 10) {
+    if (galleryContainer.scrollTop + galleryContainer.clientHeight >= galleryContainer.scrollHeight - offsetForScrollUpdate) {
         loadMoreImages(currentFiles);
     }
 }
@@ -64,7 +64,7 @@ function loadMoreImages(files) {
             img.classList.add('tile-img');
             img.src = URL.createObjectURL(file);
             img.addEventListener('click', function() {
-                displaySelectedImage(img.src);
+                displaySelectedImage(img.src, file.name);
             });
             columns[columnIndex].appendChild(img);
             columnIndex = (columnIndex + 1) % columns.length;
@@ -117,13 +117,17 @@ function setupExpandButton() {
 }
 setupExpandButton();
 
-function displaySelectedImage(src) {
+function displaySelectedImage(src, name) {
     const selectedImageContainer = document.getElementById('selectedImageContainer');
-    selectedImageContainer.innerHTML = '<button id="expandButton">Expand</button>'; // Clear existing image but keep the expand button
+    selectedImageContainer.innerHTML = '<button id="infoButton"></button><button id="expandButton">Expand</button>'; // Clear existing image but keep the buttons
     const img = document.createElement('img');
     img.src = src;
     img.draggable = false; // Disable default drag behavior
     selectedImageContainer.appendChild(img);
+
+    // Set the info button data attribute
+    const infoButton = document.getElementById('infoButton');
+    infoButton.setAttribute('data-info', name);
 
     let scale = 1;
     const minScale = 0.5;
@@ -166,5 +170,5 @@ function displaySelectedImage(src) {
     }
 
     // Re-add the expand button functionality
-    setupExpandButton()
+    setupExpandButton();
 }
