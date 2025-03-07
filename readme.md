@@ -16,6 +16,12 @@ It's just a better way to navigate my "mc inspi" folder which stands for
 "minecraft inspiration" than just browsing my file explorer.
 Just scroll, click on something I like, zoom in, out etc.
 
+This is largely AI slop btw, but realizing I needed to create columns and to 
+fill images in them iteratively to get a nice tiling was my own realization and 
+nowhere properly explained in forums. Realizing that the html for yandex images
+had a {row:0, col:0} abstraction in the code made me understand. The rest is copilot
+turning my commands into reality.
+
 # TODO
 
 * Go to top button ?

@@ -53,7 +53,6 @@ function initializeColumns() {
     }
 }
 
-
 function loadMoreImages(files) {
     const columns = document.querySelectorAll('.column');
     let columnIndex = 0;
@@ -98,6 +97,11 @@ function sortAndDisplayImages(files) {
 }
 
 function setupExpandButton() {
+    if (selectedImageContainer.style.width === '45%') {
+        expandButton.textContent = 'Collapse';
+    } else {
+        expandButton.textContent = 'Expand';
+    }
     document.getElementById('expandButton').addEventListener('click', function() {
         const selectedImageContainer = document.getElementById('selectedImageContainer');
         const galleryContainer = document.getElementById('galleryContainer');
