@@ -7,7 +7,7 @@
 
 # Demonstration
 
-<img width="640" height="480" src="./example.gif" alt="Demonstration GIF">
+<img width="1024" height="768" src="./example.gif" alt="Demonstration GIF">
 
 
 # Reason
