@@ -19,17 +19,6 @@
         <button id="reverseSortButton">Reverse Sort</button>
         <div id="gallery"></div>
     </div>
-    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
     <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var elem = document.querySelector('#gallery');
-            var msnry = new Masonry(elem, {
-                itemSelector: '.grid-item',
-                columnWidth: '.grid-sizer',
-                percentPosition: true
-            });
-        });
-    </script>
 </body>
 </html>

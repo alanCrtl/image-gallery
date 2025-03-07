@@ -63,9 +63,6 @@ function loadMoreImages(files) {
             const img = document.createElement('img');
             img.classList.add('tile-img');
             img.src = URL.createObjectURL(file);
-            img.onload = function() {
-                imageElements.push(img);
-            };
             img.addEventListener('click', function() {
                 displaySelectedImage(img.src);
             });
