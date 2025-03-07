@@ -8,14 +8,14 @@
 # Demonstration
 
 <video width="640" height="480" controls>
-  <source src="example.mp4" type="video/mp4">
+  <source src="example.gif" type="video/mp4">
 </video>
 
 # Reason
 
 It's just a better way to navigate my "mc inspi" folder which stands for 
-"minecraft inspiration" than just browser my file explorer.
-Just browse click on something I like, zoom in, out etc.
+"minecraft inspiration" than just browsing my file explorer.
+Just scroll, click on something I like, zoom in, out etc.
 
 # TODO
 
