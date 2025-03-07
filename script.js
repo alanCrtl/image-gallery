@@ -56,7 +56,7 @@ function initializeColumns() {
 function loadMoreImages(files) {
     const columns = document.querySelectorAll('.column');
     let columnIndex = 0;
-    const batchSize = 20; // Number of images to load per batch
+    const batchSize = 50; // Number of images to load per batch
     for (let i = currentIndex; i < currentIndex + batchSize && i < files.length; i++) {
         const file = files[i];
         if (file.type.startsWith('image/')) {
