@@ -8,7 +8,7 @@
 # Demonstration
 
 <video width="640" height="480" controls>
-  <source src="example.gif" type="video/mp4">
+    <source src="example.gif" type="image/gif">
 </video>
 
 # Reason
