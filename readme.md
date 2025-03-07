@@ -7,9 +7,8 @@
 
 # Demonstration
 
-<video width="640" height="480" controls>
-    <source src="example.gif" type="image/gif">
-</video>
+<img width="640" height="480" src="./example.gif" alt="Demonstration GIF">
+
 
 # Reason
 
