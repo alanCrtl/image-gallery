@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 const columnWidth = 250;
-const useSmallestColumnFilling = true; // Set to true for smallest column filling, false for iterative filling
+// Set to true for smallest column filling, false for iterative filling
+const useSmallestColumnFilling = true;
 
 let currentFiles = [];
 let isReversed = false;
@@ -62,40 +63,49 @@ function loadMoreImages(files) {
     const columns = document.querySelectorAll('.column');
     let columnIndex = 0;
     const batchSize = 50; // Number of images to load per batch
+    let delay = 0;
+
+    // Preload all images in the batch
+    const imagePromises = [];
     for (let i = currentIndex; i < currentIndex + batchSize && i < files.length; i++) {
         const file = files[i];
         if (file.type.startsWith('image/')) {
-            const img = document.createElement('img');
-            img.classList.add('tile-img');
+            const img = new Image();
             img.src = URL.createObjectURL(file);
-            img.onload = function() {
-                // Calculate image height based on column width
-                const imgHeight = img.naturalHeight * (columnWidth / img.naturalWidth); 
-                if (useSmallestColumnFilling) {
-                    // Find the column with the smallest height
-                    let minHeight = Infinity;
-                    let minColumn = null;
-                    columns.forEach(column => {
-                        const columnHeight = parseFloat(column.dataset.height);
-                        if (columnHeight < minHeight) {
-                            minHeight = columnHeight;
-                            minColumn = column;
-                        }
-                    });
-                    minColumn.appendChild(img);
-                    minColumn.dataset.height = parseFloat(minColumn.dataset.height) + imgHeight;
-                } else {
-                    columns[columnIndex].appendChild(img);
-                    columns[columnIndex].dataset.height = parseFloat(columns[columnIndex].dataset.height) + imgHeight;
-                    columnIndex = (columnIndex + 1) % columns.length;
-                }
-            };
+            imagePromises.push(new Promise((resolve) => {
+                img.onload = () => resolve({ img, file });
+            }));
+        }
+    }
+
+    Promise.all(imagePromises).then((loadedImages) => {
+        loadedImages.forEach(({ img, file }) => {
+            img.classList.add('tile-img');
+            // Calculate image height based on column width
+            const imgHeight = img.naturalHeight * (columnWidth / img.naturalWidth);
+            if (useSmallestColumnFilling) {
+                // Find the column with the smallest height
+                let minHeight = Infinity;
+                let minColumn = null;
+                columns.forEach(column => {
+                    const columnHeight = parseFloat(column.dataset.height);
+                    if (columnHeight < minHeight) {
+                        minHeight = columnHeight;
+                        minColumn = column;
+                    }
+                });
+                minColumn.appendChild(img);
+                minColumn.dataset.height = parseFloat(minColumn.dataset.height) + imgHeight;
+            } else {
+                columns[columnIndex].appendChild(img);
+                columnIndex = (columnIndex + 1) % columns.length;
+            }
             img.addEventListener('click', function() {
                 displaySelectedImage(img.src, file.name);
             });
-        }
-    }
-    currentIndex += batchSize;
+        });
+        currentIndex += batchSize;
+    });
 }
 
 function sortFiles(files, criteria) {
@@ -114,6 +124,11 @@ function sortAndDisplayImages(files) {
     gallery.innerHTML = ''; // Clear existing images
     initializeColumns();
     let sortedFiles = sortFiles(files, sortOptions.value);
+    console.log('Sorted Files:', sortedFiles.map(file => ({
+        name: file.name,
+        lastModified: file.lastModified,
+        size: file.size
+    })));
     if (isReversed) {
         sortedFiles.reverse();
     }
