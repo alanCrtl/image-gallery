@@ -3,11 +3,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 const columnWidth = 250;
+const useSmallestColumnFilling = true; // Set to true for smallest column filling, false for iterative filling
 
 let currentFiles = [];
 let isReversed = false;
 let currentIndex = 0;
-let offsetForScrollUpdate = 710
+let offsetForScrollUpdate = 710;
+
 function handleSortChange() {
     currentIndex = 0;
     sortAndDisplayImages(currentFiles);
@@ -31,7 +33,9 @@ document.getElementById('folderInput').addEventListener('change', function(event
     gallery.innerHTML = ''; // Clear existing images
     
     // Update our global files array
-    currentFiles = Array.from(event.target.files);
+    currentFiles = Array.from(event.target.files).filter(file => 
+        /\.(jfif|jpg|jpeg|gif|png|bmp|webp|svg|tiff)$/i.test(file.name)
+    );
     currentIndex = 0;
     
     sortAndDisplayImages(currentFiles);
@@ -49,6 +53,7 @@ function initializeColumns() {
     for (let i = 0; i < numColumns; i++) {
         const column = document.createElement('div');
         column.classList.add('column');
+        column.dataset.height = 0; // Initialize column height
         gallery.appendChild(column);
     }
 }
@@ -63,11 +68,31 @@ function loadMoreImages(files) {
             const img = document.createElement('img');
             img.classList.add('tile-img');
             img.src = URL.createObjectURL(file);
+            img.onload = function() {
+                // Calculate image height based on column width
+                const imgHeight = img.naturalHeight * (columnWidth / img.naturalWidth); 
+                if (useSmallestColumnFilling) {
+                    // Find the column with the smallest height
+                    let minHeight = Infinity;
+                    let minColumn = null;
+                    columns.forEach(column => {
+                        const columnHeight = parseFloat(column.dataset.height);
+                        if (columnHeight < minHeight) {
+                            minHeight = columnHeight;
+                            minColumn = column;
+                        }
+                    });
+                    minColumn.appendChild(img);
+                    minColumn.dataset.height = parseFloat(minColumn.dataset.height) + imgHeight;
+                } else {
+                    columns[columnIndex].appendChild(img);
+                    columns[columnIndex].dataset.height = parseFloat(columns[columnIndex].dataset.height) + imgHeight;
+                    columnIndex = (columnIndex + 1) % columns.length;
+                }
+            };
             img.addEventListener('click', function() {
                 displaySelectedImage(img.src, file.name);
             });
-            columns[columnIndex].appendChild(img);
-            columnIndex = (columnIndex + 1) % columns.length;
         }
     }
     currentIndex += batchSize;
@@ -79,6 +104,8 @@ function sortFiles(files, criteria) {
             return a.name.localeCompare(b.name);
         } else if (criteria === 'date') {
             return b.lastModified - a.lastModified;
+        } else if (criteria === 'filesize') {
+            return a.size - b.size;
         }
     });
 }
