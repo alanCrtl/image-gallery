@@ -81,6 +81,7 @@ body {
     border-radius: 5px;
     padding: 5px 10px;
     cursor: pointer;
+    z-index: 10; /* Ensure button is on top */
 }
 
 #expandButton:hover {
@@ -101,6 +102,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 10; /* Ensure button is on top */
 }   
 
 #infoButton:hover::after {
@@ -125,18 +127,44 @@ body {
 
 #gallery {
     display: flex;
-    width: 95%; /* Adjust width to fit container */
+    /* width: 95%; Adjust width to fit container */
     margin: 10px;
 }
 
 .column {
-    width: 250px;
-    margin: 5px;
+    margin: 3px;
 }
 
 .tile-img {
     width: 100%;
-    margin: 5px;
+    margin: 2px 0 2px 0;
     cursor: pointer;
     border-radius: 5px;
+}
+
+#columnButtons {
+    display: inline-flex;
+    margin-left: 20px;
+}
+
+.column-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #464647;
+    color: white;
+    border: none;
+    margin: 0 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.column-button.selected {
+    background-color: #5a5a5c;
+}
+
+.column-button:hover {
+    background-color: #5a5a5c;
 }

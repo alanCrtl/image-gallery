@@ -2,14 +2,14 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeColumns();
 });
 
-const columnWidth = 250;
-// Set to true for smallest column filling, false for iterative filling
+let columnWidth = 275; // Default column width
 const useSmallestColumnFilling = true;
 
 let currentFiles = [];
 let isReversed = false;
 let currentIndex = 0;
 let offsetForScrollUpdate = 710;
+let isLoading = false;
 
 function handleSortChange() {
     currentIndex = 0;
@@ -24,7 +24,8 @@ function handleReverseSort() {
 
 function handleScroll() {
     const galleryContainer = document.getElementById('galleryContainer');
-    if (galleryContainer.scrollTop + galleryContainer.clientHeight >= galleryContainer.scrollHeight - offsetForScrollUpdate) {
+    if (galleryContainer.scrollTop + galleryContainer.clientHeight >= galleryContainer.scrollHeight - offsetForScrollUpdate && !isLoading) {
+        isLoading = true;
         loadMoreImages(currentFiles);
     }
 }
@@ -46,6 +47,16 @@ document.getElementById('folderInput').addEventListener('change', function(event
 document.getElementById('sortOptions').addEventListener('change', handleSortChange);
 document.getElementById('reverseSortButton').addEventListener('click', handleReverseSort);
 document.getElementById('galleryContainer').addEventListener('scroll', handleScroll);
+document.querySelectorAll('.column-button').forEach(button => {
+    button.addEventListener('click', function(event) {
+        document.querySelectorAll('.column-button').forEach(btn => btn.classList.remove('selected'));
+        event.target.classList.add('selected');
+        const numColumns = event.target.getAttribute('data-columns');
+        const gallery = document.getElementById('gallery');
+        columnWidth = Math.floor(gallery.clientWidth / numColumns);
+        refreshImages();
+    });
+});
 
 function initializeColumns() {
     const gallery = document.getElementById('gallery');
@@ -54,7 +65,8 @@ function initializeColumns() {
     for (let i = 0; i < numColumns; i++) {
         const column = document.createElement('div');
         column.classList.add('column');
-        column.dataset.height = 0; // Initialize column height
+        column.dataset.height = 0;
+        column.style.width = columnWidth + 'px';
         gallery.appendChild(column);
     }
 }
@@ -62,8 +74,13 @@ function initializeColumns() {
 function loadMoreImages(files) {
     const columns = document.querySelectorAll('.column');
     let columnIndex = 0;
-    const batchSize = 50; // Number of images to load per batch
-    let delay = 0;
+    const batchSize = 50;
+
+    // Check if there are more images to load
+    if (currentIndex >= files.length) {
+        isLoading = false;
+        return;
+    }
 
     // Preload all images in the batch
     const imagePromises = [];
@@ -104,11 +121,19 @@ function loadMoreImages(files) {
                 displaySelectedImage(img.src, file.name);
             });
         });
-        currentIndex += batchSize;
+        currentIndex += batchSize; // Update currentIndex after loading the batch
+        isLoading = false; // Reset the loading flag
     });
 }
 
 function sortFiles(files, criteria) {
+    if (criteria === 'random') {
+        for (let i = files.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [files[i], files[j]] = [files[j], files[i]];
+        }
+        return files;
+    }
     return files.sort((a, b) => {
         if (criteria === 'name') {
             return a.name.localeCompare(b.name);
@@ -124,15 +149,17 @@ function sortAndDisplayImages(files) {
     gallery.innerHTML = ''; // Clear existing images
     initializeColumns();
     let sortedFiles = sortFiles(files, sortOptions.value);
-    console.log('Sorted Files:', sortedFiles.map(file => ({
-        name: file.name,
-        lastModified: file.lastModified,
-        size: file.size
-    })));
     if (isReversed) {
         sortedFiles.reverse();
     }
     loadMoreImages(sortedFiles);
+}
+
+function refreshImages() {
+    gallery.innerHTML = '';
+    initializeColumns();
+    currentIndex = 0;
+    loadMoreImages(currentFiles);
 }
 
 function setupExpandButton() {
@@ -211,6 +238,5 @@ function displaySelectedImage(src, name) {
         document.removeEventListener('mouseup', onMouseUp);
     }
 
-    // Re-add the expand button functionality
     setupExpandButton();
 }
