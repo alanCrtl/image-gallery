@@ -10,6 +10,7 @@
     <div id="selectedImageContainer">
         <button id="infoButton"></button>
         <button id="expandButton">Expand</button>
+        <button id="focusButton">Focus</button>
     </div>
     <div id="galleryContainer">
         <input type="file" id="folderInput" webkitdirectory directory multiple>
@@ -28,6 +29,11 @@
         </div>
         <div id="gallery"></div>
     </div>
-    <script src="script.js"></script>
+    <div id="focusContainer" class="hidden">
+        <button id="closeFocusButton">Close</button>
+        <img id="focusedImage" src="" alt="Focused Image">
+    </div>
+    <script src="gallery.js"></script>
+    <script src="selectedImage.js"></script>
 </body>
 </html>
