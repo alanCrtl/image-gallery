@@ -1,6 +1,6 @@
 # Features
 
-* Open an folder of images
+* Open a folder of images
 * Tiling format
 * loads on scroll
 * area for observing in detail a selected image
@@ -23,7 +23,4 @@ had a {row:0, col:0} abstraction in the code made me understand. The rest is cop
 turning my commands into reality.
 
 # TODO
-
-* Go to top button ?
-* Make zoom and dezoom updates ?
 

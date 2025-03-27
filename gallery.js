@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeColumns();
 });
 
-let columnWidth = 275; // Default column width
+const numColumns = 4; //hardcode default number of columns at start
+columnWidth = Math.floor(gallery.clientWidth / numColumns);
 const useSmallestColumnFilling = true;
 
 let currentFiles = [];
@@ -29,6 +30,21 @@ function handleScroll() {
         loadMoreImages(currentFiles);
     }
 }
+function handleColumnButtonClick(event) {
+    document.querySelectorAll('.column-button').forEach(btn => btn.classList.remove('selected'));
+    event.target.classList.add('selected');
+    const numColumns = event.target.getAttribute('data-columns');
+    const gallery = document.getElementById('gallery');
+    columnWidth = Math.floor(gallery.clientWidth / numColumns);
+    refreshImages();
+}
+
+document.getElementById('sortOptions').addEventListener('change', handleSortChange);
+document.getElementById('reverseSortButton').addEventListener('click', handleReverseSort);
+document.getElementById('galleryContainer').addEventListener('scroll', handleScroll);
+document.querySelectorAll('.column-button').forEach(button => {
+    button.addEventListener('click', handleColumnButtonClick);
+});
 
 document.getElementById('folderInput').addEventListener('change', function(event) {
     const gallery = document.getElementById('gallery');
@@ -41,21 +57,6 @@ document.getElementById('folderInput').addEventListener('change', function(event
     currentIndex = 0;
     
     sortAndDisplayImages(currentFiles);
-});
-
-// Set up other event listeners once, outside the change event
-document.getElementById('sortOptions').addEventListener('change', handleSortChange);
-document.getElementById('reverseSortButton').addEventListener('click', handleReverseSort);
-document.getElementById('galleryContainer').addEventListener('scroll', handleScroll);
-document.querySelectorAll('.column-button').forEach(button => {
-    button.addEventListener('click', function(event) {
-        document.querySelectorAll('.column-button').forEach(btn => btn.classList.remove('selected'));
-        event.target.classList.add('selected');
-        const numColumns = event.target.getAttribute('data-columns');
-        const gallery = document.getElementById('gallery');
-        columnWidth = Math.floor(gallery.clientWidth / numColumns);
-        refreshImages();
-    });
 });
 
 function initializeColumns() {
