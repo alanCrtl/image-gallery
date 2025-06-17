@@ -19,7 +19,11 @@
             <option value="name">Name</option>
             <option value="filesize">File Size</option>
             <option value="random">Random</option>
+            <option value="color">Color [Slow]</option>
         </select>
+        <div id="loadingIndicator" style="display: none; padding: 10px; text-align: center; color: white;">
+            Analyzing colors...
+        </div>
         <button id="reverseSortButton">Reverse Sort</button>
         <div id="columnButtons">
             <button class="column-button" data-columns="3"> </button>
@@ -35,5 +39,6 @@
     </div>
     <script src="gallery.js"></script>
     <script src="selectedImage.js"></script>
+    <script src="colorAnalysis.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeColumns();
 });
 
-const numColumns = 4; //hardcode default number of columns at start
+const numColumns = 4; //hardcoded default number of columns at start
 columnWidth = Math.floor(gallery.clientWidth / numColumns);
 const useSmallestColumnFilling = true;
 
@@ -11,6 +11,9 @@ let isReversed = false;
 let currentIndex = 0;
 let offsetForScrollUpdate = 710;
 let isLoading = false;
+const imageColorData = new Map();
+
+// --- Page Events Setup
 
 function handleSortChange() {
     currentIndex = 0;
@@ -19,8 +22,12 @@ function handleSortChange() {
 
 function handleReverseSort() {
     isReversed = !isReversed;
-    currentIndex = 0;
-    sortAndDisplayImages(currentFiles);
+    currentFiles.reverse();
+    const sortOption = document.getElementById('sortOptions').value;
+    if (sortOption == "random") {
+        currentFiles = sortFiles(currentFiles, sortOption)
+    }
+    refreshImages()
 }
 
 function handleScroll() {
@@ -30,6 +37,7 @@ function handleScroll() {
         loadMoreImages(currentFiles);
     }
 }
+
 function handleColumnButtonClick(event) {
     document.querySelectorAll('.column-button').forEach(btn => btn.classList.remove('selected'));
     event.target.classList.add('selected');
@@ -46,19 +54,10 @@ document.querySelectorAll('.column-button').forEach(button => {
     button.addEventListener('click', handleColumnButtonClick);
 });
 
-document.getElementById('folderInput').addEventListener('change', function(event) {
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML = ''; // Clear existing images
-    
-    // Update our global files array
-    currentFiles = Array.from(event.target.files).filter(file => 
-        /\.(jfif|jpg|jpeg|gif|png|bmp|webp|svg|tiff)$/i.test(file.name)
-    );
-    currentIndex = 0;
-    
-    sortAndDisplayImages(currentFiles);
-});
+// --- Sorting and Display Logic
 
+// Prepares empty column structure
+//  in which the images will be dropped
 function initializeColumns() {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = ''; // Clear existing columns
@@ -72,6 +71,23 @@ function initializeColumns() {
     }
 }
 
+// Displays on load
+document.getElementById('folderInput').addEventListener('change', function(event) {
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = ''; // Clear existing images
+    
+    currentFiles = Array.from(event.target.files).filter(file => 
+        /\.(jfif|jpg|jpeg|gif|png|bmp|webp|svg|tiff)$/i.test(file.name)
+    );
+    currentIndex = 0;
+    
+    sortAndDisplayImages(currentFiles);
+});
+
+/**
+ * Loads more images into the gallery in batches,
+ * distributing them across columns.
+ */
 function loadMoreImages(files) {
     const columns = document.querySelectorAll('.column');
     let columnIndex = 0;
@@ -127,13 +143,38 @@ function loadMoreImages(files) {
     });
 }
 
-function sortFiles(files, criteria) {
+// Refresh image display.
+function refreshImages() {
+    gallery.innerHTML = '';
+    initializeColumns();
+    currentIndex = 0;
+    loadMoreImages(currentFiles);
+}
+
+// Sorts image file list based on criteria
+async function sortFiles(files, criteria) {
     if (criteria === 'random') {
         for (let i = files.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [files[i], files[j]] = [files[j], files[i]];
         }
         return files;
+    }
+    if (criteria === 'color') {
+        await analyzeImagesForColor(files);
+        files.sort((a, b) => {
+            const colorA = imageColorData.get(a.name);
+            const colorB = imageColorData.get(b.name);
+            
+            if (!colorA || !colorB) return 0;
+            
+            // Sort by primary hue first, then by secondary hue
+            const hueDiff = colorA.primaryHsv[0] - colorB.primaryHsv[0];
+            if (Math.abs(hueDiff) > 5) return hueDiff;
+            
+            // If primary hues are similar, sort by secondary hue
+            return colorA.secondaryHsv[0] - colorB.secondaryHsv[0];
+        });
     }
     return files.sort((a, b) => {
         if (criteria === 'name') {
@@ -146,19 +187,63 @@ function sortFiles(files, criteria) {
     });
 }
 
-function sortAndDisplayImages(files) {
-    gallery.innerHTML = ''; // Clear existing images
-    initializeColumns();
-    let sortedFiles = sortFiles(files, sortOptions.value);
+// Implements Sorting and Display of images in the gallery
+async function sortAndDisplayImages(files) {
+    const gallery = document.getElementById('gallery');
+    const sortOption = document.getElementById('sortOptions').value;
+    
+    let sortedFiles = [...files];
+    sortedFiles = await sortFiles(files, sortOption)
     if (isReversed) {
         sortedFiles.reverse();
     }
-    loadMoreImages(sortedFiles);
-}
 
-function refreshImages() {
+    // Clear gallery and reload with sorted images
     gallery.innerHTML = '';
     initializeColumns();
     currentIndex = 0;
+    currentFiles = sortedFiles
     loadMoreImages(currentFiles);
 }
+
+// --- Sort Helper
+
+// Analyze images for color data
+async function analyzeImagesForColor(files) {
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.textContent = 'Analyzing colors...';
+        loadingIndicator.style.display = 'block';
+    }
+    
+    const batchSize = 5; // Process images in batches to avoid blocking UI
+    
+    for (let i = 0; i < files.length; i += batchSize) {
+        const batch = files.slice(i, i + batchSize);
+        const promises = batch.map(async (file) => {
+            if (!imageColorData.has(file.name)) {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                const colorData = await colorAnalyzer.analyzeImage(img);
+                imageColorData.set(file.name, colorData);
+                URL.revokeObjectURL(img.src);
+            }
+        });
+        
+        await Promise.all(promises);
+        
+        // Update progress
+        if (loadingIndicator) {
+            const progress = Math.round(((i + batchSize) / files.length) * 100);
+            loadingIndicator.textContent = `Analyzing colors... (${Math.min(progress, 100)}%)`;
+        }
+        
+        // Small delay to keep UI responsive
+        await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
+}
+
