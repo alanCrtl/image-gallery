@@ -22,7 +22,6 @@ function handleSortChange() {
 
 function handleReverseSort() {
     isReversed = !isReversed;
-    currentFiles.reverse();
     const sortOption = document.getElementById('sortOptions').value;
     if (sortOption == "random") {
         currentFiles = sortFiles(currentFiles, sortOption)
