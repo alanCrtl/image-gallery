@@ -185,6 +185,13 @@ body {
     transition: width 0.3s;
 }
 
+#galleryContainer {
+    background-image: url('images/corner pattern grey.png'), url('images/band.png');
+    background-position: right 10px top 10px, left 10px top 10px;
+    background-repeat: no-repeat, no-repeat;
+    background-size: auto 150px, auto 70px; 
+}  
+
 #gallery {
     display: flex;
     /* width: 95%; Adjust width to fit container */

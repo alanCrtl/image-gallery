@@ -24,3 +24,4 @@ turning my commands into reality.
 
 # TODO
 
+* Add motifs and beautiful subtle patterns in background to make life better
