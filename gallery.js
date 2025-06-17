@@ -20,12 +20,15 @@ function handleSortChange() {
     sortAndDisplayImages(currentFiles);
 }
 
-function handleReverseSort() {
-    isReversed = !isReversed;
+async function handleReverseSort() {
     const sortOption = document.getElementById('sortOptions').value;
     if (sortOption == "random") {
-        currentFiles = sortFiles(currentFiles, sortOption)
+        currentFiles = await sortFiles(currentFiles, sortOption)
     }
+    
+    isReversed = !isReversed;
+    currentFiles.reverse();
+    
     refreshImages()
 }
 
